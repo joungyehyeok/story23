@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Layerhaus Design Studio</title>
+    <style>
+      :root {
+        --ink: #171717;
+        --muted: #66645f;
+        --paper: #f7f4ed;
+        --line: #d9d2c5;
+        --mint: #b7e4d3;
+        --coral: #ff7a59;
+        --blue: #4c77d9;
+        --gold: #e9b44c;
+        --white: #fffaf1;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      a { color: inherit; text-decoration: none; }
+      img { display: block; width: 100%; }
+      .nav {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 18px clamp(18px, 4vw, 56px);
+        background: rgba(247, 244, 237, 0.88);
+        border-bottom: 1px solid rgba(23, 23, 23, 0.1);
+        backdrop-filter: blur(18px);
+      }
+      .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: 0; }
+      .mark {
+        width: 28px;
+        height: 28px;
+        border: 2px solid var(--ink);
+        background: linear-gradient(90deg, transparent 48%, var(--ink) 48% 55%, transparent 55%), linear-gradient(0deg, var(--coral) 0 50%, var(--mint) 50%);
+      }
+      .nav-links { display: flex; align-items: center; gap: clamp(14px, 3vw, 30px); color: var(--muted); font-size: 14px; }
+      .nav-links a:hover { color: var(--ink); }
+      .shell { width: min(1160px, calc(100% - 36px)); margin: 0 auto; }
+      .hero {
+        min-height: calc(100svh - 66px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(340px, 0.8fr);
+        align-items: center;
+        gap: clamp(28px, 6vw, 76px);
+        padding: clamp(44px, 8vw, 92px) 0 48px;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .eyebrow::before { content: ""; width: 30px; height: 2px; background: var(--coral); }
+      h1 { max-width: 760px; margin: 18px 0; font-size: clamp(48px, 8vw, 104px); line-height: 0.92; letter-spacing: 0; }
+      .hero p { max-width: 620px; margin: 0; color: var(--muted); font-size: clamp(17px, 2vw, 21px); line-height: 1.65; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        padding: 12px 18px;
+        border-radius: 6px;
+        font-weight: 800;
+        transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      }
+      .button.primary { background: var(--ink); color: var(--white); box-shadow: 6px 6px 0 var(--coral); }
+      .button.secondary { background: transparent; }
+      .button:hover { transform: translate(-2px, -2px); }
+      .hero-visual { position: relative; min-height: 560px; }
+      .poster {
+        position: absolute;
+        inset: 0 0 54px 0;
+        overflow: hidden;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--white);
+        box-shadow: 12px 12px 0 var(--ink);
+      }
+      .poster img { height: 100%; object-fit: cover; }
+      .poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(23, 23, 23, 0) 45%, rgba(23, 23, 23, 0.58)); }
+      .floating-panel {
+        position: absolute;
+        right: -8px;
+        bottom: 0;
+        width: min(330px, 86%);
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--white);
+        box-shadow: 8px 8px 0 var(--blue);
+        padding: 18px;
+      }
+      .panel-top { display: flex; justify-content: space-between; gap: 18px; margin-bottom: 18px; font-weight: 800; }
+      .palette { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .swatch { aspect-ratio: 1; border: 1px solid var(--ink); border-radius: 5px; }
+      section { padding: clamp(58px, 8vw, 96px) 0; border-top: 1px solid var(--line); }
+      .section-head { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-bottom: 28px; }
+      h2 { max-width: 640px; margin: 0; font-size: clamp(32px, 5vw, 58px); line-height: 1; letter-spacing: 0; }
+      .section-head p { max-width: 360px; margin: 0; color: var(--muted); line-height: 1.6; }
+      .work-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+      .work { overflow: hidden; border: 1px solid var(--ink); border-radius: 8px; background: var(--white); }
+      .work img { aspect-ratio: 4 / 3; object-fit: cover; border-bottom: 1px solid var(--ink); transition: transform 260ms ease; }
+      .work:hover img { transform: scale(1.04); }
+      .work-body { padding: 18px; }
+      .work-body h3 { margin: 0 0 8px; font-size: 21px; }
+      .work-body p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .services { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .service { min-height: 220px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid var(--ink); border-radius: 8px; padding: 18px; background: var(--white); }
+      .service:nth-child(2) { background: var(--mint); }
+      .service:nth-child(3) { background: #ffe1d8; }
+      .service:nth-child(4) { background: #f8dda1; }
+      .number { font-size: 13px; font-weight: 900; }
+      .service h3 { margin: 32px 0 10px; font-size: 23px; }
+      .service p { margin: 0; color: #3d3b37; line-height: 1.55; }
+      .contact { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; padding-bottom: clamp(64px, 8vw, 110px); }
+      .contact h2 { max-width: 760px; }
+      .email { display: inline-flex; min-width: 240px; min-height: 56px; align-items: center; justify-content: center; border: 1px solid var(--ink); border-radius: 6px; background: var(--coral); color: var(--ink); font-weight: 900; box-shadow: 7px 7px 0 var(--ink); }
+      .reveal { opacity: 0; transform: translateY(18px); transition: opacity 500ms ease, transform 500ms ease; }
+      .reveal.visible { opacity: 1; transform: translateY(0); }
+      @media (max-width: 880px) {
+        .hero, .contact { grid-template-columns: 1fr; }
+        .hero { min-height: auto; }
+        .hero-visual { min-height: 480px; }
+        .section-head { align-items: start; flex-direction: column; }
+        .work-grid, .services { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 620px) {
+        .nav { align-items: start; flex-direction: column; gap: 12px; }
+        .nav-links { width: 100%; justify-content: space-between; }
+        .hero-visual { min-height: 390px; }
+        .poster { inset: 0 8px 48px 0; box-shadow: 7px 7px 0 var(--ink); }
+        .floating-panel { right: 0; }
+        .work-grid, .services { grid-template-columns: 1fr; }
+        .email { width: 100%; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav" aria-label="주요 메뉴">
+      <a class="brand" href="#"><span class="mark" aria-hidden="true"></span>Layerhaus</a>
+      <div class="nav-links">
+        <a href="#work">작업</a>
+        <a href="#services">서비스</a>
+        <a href="#contact">문의</a>
+      </div>
+    </nav>
+    <main>
+      <header class="shell hero">
+        <div class="reveal">
+          <span class="eyebrow">Brand & digital design</span>
+          <h1>선명한 브랜드를 만드는 디자인 스튜디오.</h1>
+          <p>Layerhaus는 제품, 웹사이트, 캠페인에 필요한 시각 언어를 설계합니다. 단정한 구조와 기억에 남는 디테일로 브랜드가 더 또렷하게 보이도록 돕습니다.</p>
+          <div class="actions">
+            <a class="button primary" href="#work">작업 보기</a>
+            <a class="button secondary" href="#contact">프로젝트 문의</a>
+          </div>
+        </div>
+        <div class="hero-visual reveal" aria-label="디자인 스튜디오 무드 이미지">
+          <div class="poster"><img alt="책상 위에 놓인 컬러 샘플과 디자인 작업물" src="https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1200&q=85" /></div>
+          <aside class="floating-panel" aria-label="컬러 팔레트">
+            <div class="panel-top"><span>Palette 26</span><span>Seoul</span></div>
+            <div class="palette">
+              <span class="swatch" style="background: var(--coral)"></span>
+              <span class="swatch" style="background: var(--mint)"></span>
+              <span class="swatch" style="background: var(--blue)"></span>
+              <span class="swatch" style="background: var(--gold)"></span>
+            </div>
+          </aside>
+        </div>
+      </header>
+      <section id="work">
+        <div class="shell">
+          <div class="section-head reveal"><h2>브랜드가 실제로 쓰이는 장면까지 설계합니다.</h2><p>정체성, 웹, 패키지, 소셜 콘텐츠가 따로 놀지 않도록 하나의 시스템으로 엮습니다.</p></div>
+          <div class="work-grid">
+            <article class="work reveal"><img alt="브랜드 포스터와 편집 디자인" src="https://images.unsplash.com/photo-1497215728101-856f4ea42174?auto=format&fit=crop&w=900&q=85" /><div class="work-body"><h3>Editorial Identity</h3><p>출판 브랜드를 위한 로고, 그리드, 타이포그래피 시스템.</p></div></article>
+            <article class="work reveal"><img alt="디지털 제품 화면이 보이는 작업 공간" src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=900&q=85" /><div class="work-body"><h3>Product Website</h3><p>제품의 핵심 흐름을 빠르게 이해시키는 반응형 웹사이트.</p></div></article>
+            <article class="work reveal"><img alt="컬러 종이와 디자인 재료" src="https://images.unsplash.com/photo-1452860606245-08befc0ff44b?auto=format&fit=crop&w=900&q=85" /><div class="work-body"><h3>Campaign Kit</h3><p>온라인과 오프라인에 함께 쓰이는 캠페인 비주얼 세트.</p></div></article>
+          </div>
+        </div>
+      </section>
+      <section id="services">
+        <div class="shell">
+          <div class="section-head reveal"><h2>작게 시작해도 확장 가능한 디자인.</h2><p>브랜드의 현재 단계에 맞춰 필요한 산출물을 촘촘하게 구성합니다.</p></div>
+          <div class="services">
+            <article class="service reveal"><span class="number">01</span><div><h3>Brand System</h3><p>로고, 색, 글꼴, 레이아웃 원칙을 한 번에 정리합니다.</p></div></article>
+            <article class="service reveal"><span class="number">02</span><div><h3>Web Design</h3><p>첫 화면부터 전환까지 흐름이 자연스러운 웹 경험을 만듭니다.</p></div></article>
+            <article class="service reveal"><span class="number">03</span><div><h3>Art Direction</h3><p>촬영, 그래픽, 콘텐츠가 같은 목소리로 보이도록 잡아줍니다.</p></div></article>
+            <article class="service reveal"><span class="number">04</span><div><h3>Launch Assets</h3><p>론칭에 필요한 배너, 상세 이미지, 소셜 템플릿을 제작합니다.</p></div></article>
+          </div>
+        </div>
+      </section>
+      <section id="contact">
+        <div class="shell contact reveal"><h2>새 브랜드, 새 웹사이트, 새 캠페인을 준비 중인가요?</h2><a class="email" href="mailto:hello@layerhaus.studio">hello@layerhaus.studio</a></div>
+      </section>
+    </main>
+    <script>
+      const reveals = document.querySelectorAll(".reveal");
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("visible");
+            observer.unobserve(entry.target);
+          }
+        }
+      }, { threshold: 0.16 });
+      reveals.forEach((item) => observer.observe(item));
+    </script>
+  </body>
+</html>
