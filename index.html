@@ -518,6 +518,10 @@
         font-weight: 800;
       }
 
+      .signup-message.error {
+        background: #ffe1d8;
+      }
+
       .signup-message.show {
         display: block;
       }
@@ -742,12 +746,8 @@
             <label for="signupEmail">이메일</label>
             <input id="signupEmail" name="email" type="email" autocomplete="email" required />
           </div>
-          <div class="field">
-            <label for="signupPassword">비밀번호</label>
-            <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required />
-          </div>
           <button class="signup-submit" type="submit">가입하기</button>
-          <p class="signup-note">입력한 정보는 화면에서만 확인되며 서버로 전송되지 않습니다.</p>
+          <p class="signup-note">입력한 이름과 이메일은 Supabase 데이터베이스에 저장됩니다.</p>
         </form>
         <p class="signup-message" id="signupMessage" role="status">가입 신청이 완료되었습니다.</p>
       </div>
@@ -758,10 +758,14 @@
       const signupForm = document.querySelector("#signupForm");
       const signupMessage = document.querySelector("#signupMessage");
       const signupName = document.querySelector("#signupName");
+      const signupSubmit = document.querySelector(".signup-submit");
+      const supabaseUrl = "https://yfppdzbhjtvifjyvheoi.supabase.co";
+      const supabaseKey = "sb_publishable_6SP9dfLWxAqTAkZWd8w08A_4r1ayzpk";
       const openSignup = () => {
         signupModal.classList.add("open");
         signupModal.setAttribute("aria-hidden", "false");
         signupMessage.classList.remove("show");
+        signupMessage.classList.remove("error");
         signupForm.reset();
         signupName.focus();
       };
@@ -778,9 +782,45 @@
       document.addEventListener("keydown", (event) => {
         if (event.key === "Escape" && signupModal.classList.contains("open")) closeSignup();
       });
-      signupForm.addEventListener("submit", (event) => {
+      signupForm.addEventListener("submit", async (event) => {
         event.preventDefault();
-        signupMessage.classList.add("show");
+        const formData = new FormData(signupForm);
+        const payload = {
+          name: String(formData.get("name")).trim(),
+          email: String(formData.get("email")).trim(),
+        };
+
+        signupSubmit.disabled = true;
+        signupSubmit.textContent = "저장 중...";
+        signupMessage.classList.remove("show");
+        signupMessage.classList.remove("error");
+
+        try {
+          const response = await fetch(`${supabaseUrl}/rest/v1/signups`, {
+            method: "POST",
+            headers: {
+              apikey: supabaseKey,
+              Authorization: `Bearer ${supabaseKey}`,
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          if (!response.ok) {
+            throw new Error("signup insert failed");
+          }
+
+          signupForm.reset();
+          signupMessage.textContent = "가입 신청이 Supabase에 저장되었습니다.";
+          signupMessage.classList.add("show");
+        } catch (error) {
+          signupMessage.textContent = "저장에 실패했습니다. 잠시 후 다시 시도해주세요.";
+          signupMessage.classList.add("show", "error");
+        } finally {
+          signupSubmit.disabled = false;
+          signupSubmit.textContent = "가입하기";
+        }
       });
 
       const reveals = document.querySelectorAll(".reveal");
