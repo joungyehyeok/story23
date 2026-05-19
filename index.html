@@ -89,6 +89,26 @@
         color: var(--ink);
       }
 
+      .nav-signup {
+        min-height: 34px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--mint);
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 800;
+        padding: 7px 12px;
+        transition:
+          transform 180ms ease,
+          box-shadow 180ms ease;
+      }
+
+      .nav-signup:hover {
+        box-shadow: 4px 4px 0 var(--ink);
+        transform: translate(-1px, -1px);
+      }
+
       .shell {
         width: min(1160px, calc(100% - 36px));
         margin: 0 auto;
@@ -390,6 +410,118 @@
         transform: translateY(0);
       }
 
+      .signup-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 22px;
+        background: rgba(23, 23, 23, 0.46);
+      }
+
+      .signup-modal.open {
+        display: flex;
+      }
+
+      .signup-dialog {
+        width: min(440px, 100%);
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--white);
+        box-shadow: 10px 10px 0 var(--ink);
+        padding: 24px;
+      }
+
+      .signup-head {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 20px;
+      }
+
+      .signup-head h2 {
+        font-size: 30px;
+        line-height: 1.18;
+      }
+
+      .close-signup {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--paper);
+        cursor: pointer;
+        font-size: 22px;
+        line-height: 1;
+      }
+
+      .signup-form {
+        display: grid;
+        gap: 14px;
+      }
+
+      .field {
+        display: grid;
+        gap: 7px;
+      }
+
+      .field label {
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .field input {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: #fffdf7;
+        color: var(--ink);
+        font: inherit;
+        padding: 10px 12px;
+      }
+
+      .field input:focus {
+        outline: 3px solid rgba(76, 119, 217, 0.25);
+      }
+
+      .signup-submit {
+        min-height: 48px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--ink);
+        color: var(--white);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 900;
+        margin-top: 4px;
+      }
+
+      .signup-note {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .signup-message {
+        display: none;
+        margin: 16px 0 0;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        background: var(--mint);
+        padding: 12px;
+        font-weight: 800;
+      }
+
+      .signup-message.show {
+        display: block;
+      }
+
       @media (max-width: 880px) {
         .hero,
         .contact {
@@ -425,6 +557,7 @@
         .nav-links {
           width: 100%;
           justify-content: space-between;
+          flex-wrap: wrap;
         }
 
         .hero-visual {
@@ -461,6 +594,7 @@
         <a href="#work">작업</a>
         <a href="#services">서비스</a>
         <a href="#contact">문의</a>
+        <button class="nav-signup" type="button" data-open-signup>회원가입</button>
       </div>
     </nav>
 
@@ -593,7 +727,62 @@
       </section>
     </main>
 
+    <div class="signup-modal" id="signupModal" aria-hidden="true">
+      <div class="signup-dialog" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+        <div class="signup-head">
+          <h2 id="signupTitle">회원가입</h2>
+          <button class="close-signup" type="button" aria-label="회원가입 창 닫기" data-close-signup>&times;</button>
+        </div>
+        <form class="signup-form" id="signupForm">
+          <div class="field">
+            <label for="signupName">이름</label>
+            <input id="signupName" name="name" type="text" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="signupEmail">이메일</label>
+            <input id="signupEmail" name="email" type="email" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="signupPassword">비밀번호</label>
+            <input id="signupPassword" name="password" type="password" autocomplete="new-password" minlength="8" required />
+          </div>
+          <button class="signup-submit" type="submit">가입하기</button>
+          <p class="signup-note">입력한 정보는 화면에서만 확인되며 서버로 전송되지 않습니다.</p>
+        </form>
+        <p class="signup-message" id="signupMessage" role="status">가입 신청이 완료되었습니다.</p>
+      </div>
+    </div>
+
     <script>
+      const signupModal = document.querySelector("#signupModal");
+      const signupForm = document.querySelector("#signupForm");
+      const signupMessage = document.querySelector("#signupMessage");
+      const signupName = document.querySelector("#signupName");
+      const openSignup = () => {
+        signupModal.classList.add("open");
+        signupModal.setAttribute("aria-hidden", "false");
+        signupMessage.classList.remove("show");
+        signupForm.reset();
+        signupName.focus();
+      };
+      const closeSignup = () => {
+        signupModal.classList.remove("open");
+        signupModal.setAttribute("aria-hidden", "true");
+      };
+
+      document.querySelector("[data-open-signup]").addEventListener("click", openSignup);
+      document.querySelector("[data-close-signup]").addEventListener("click", closeSignup);
+      signupModal.addEventListener("click", (event) => {
+        if (event.target === signupModal) closeSignup();
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && signupModal.classList.contains("open")) closeSignup();
+      });
+      signupForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        signupMessage.classList.add("show");
+      });
+
       const reveals = document.querySelectorAll(".reveal");
       const observer = new IntersectionObserver(
         (entries) => {
