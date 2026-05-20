@@ -371,6 +371,76 @@
         line-height: 1.55;
       }
 
+      .translator {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 18px;
+      }
+
+      .translator-panel {
+        min-height: 360px;
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--white);
+        overflow: hidden;
+      }
+
+      .translator-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        min-height: 54px;
+        border-bottom: 1px solid var(--ink);
+        padding: 14px 16px;
+        font-weight: 900;
+      }
+
+      .translator-badge {
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        background: var(--mint);
+        padding: 5px 10px;
+        font-size: 12px;
+      }
+
+      .translator textarea,
+      .translation-output {
+        flex: 1;
+        width: 100%;
+        min-height: 300px;
+        border: 0;
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: clamp(18px, 2vw, 22px);
+        line-height: 1.75;
+        padding: 18px;
+      }
+
+      .translator textarea {
+        resize: vertical;
+      }
+
+      .translator textarea:focus {
+        outline: 3px solid rgba(76, 119, 217, 0.25);
+        outline-offset: -3px;
+      }
+
+      .translation-output {
+        background: #fffdf7;
+        white-space: pre-wrap;
+      }
+
+      .translator-status {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
       .contact {
         display: grid;
         grid-template-columns: 1fr auto;
@@ -546,7 +616,8 @@
         }
 
         .work-grid,
-        .services {
+        .services,
+        .translator {
           grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
@@ -578,7 +649,8 @@
         }
 
         .work-grid,
-        .services {
+        .services,
+        .translator {
           grid-template-columns: 1fr;
         }
 
@@ -597,6 +669,7 @@
       <div class="nav-links">
         <a href="#work">작업</a>
         <a href="#services">서비스</a>
+        <a href="#translator">중국어 번역</a>
         <a href="#contact">문의</a>
         <button class="nav-signup" type="button" data-open-signup>회원가입</button>
       </div>
@@ -723,6 +796,39 @@
         </div>
       </section>
 
+      <section id="translator">
+        <div class="shell">
+          <div class="section-head reveal">
+            <h2>한국어를 입력하면 중국어로 바로 번역합니다.</h2>
+            <p>왼쪽에 문장을 입력하면 오른쪽에 간체 중국어 번역 결과가 실시간으로 표시됩니다.</p>
+          </div>
+
+          <div class="translator reveal">
+            <div class="translator-panel">
+              <div class="translator-top">
+                <span>한국어 입력</span>
+                <span class="translator-badge">KO</span>
+              </div>
+              <textarea
+                id="koreanInput"
+                aria-label="한국어 입력"
+                placeholder="예: 안녕하세요. 중국어 번역 서비스를 테스트하고 싶어요."
+              ></textarea>
+            </div>
+            <div class="translator-panel">
+              <div class="translator-top">
+                <span>중국어 번역</span>
+                <span class="translator-badge">ZH-CN</span>
+              </div>
+              <div class="translation-output" id="chineseOutput" aria-live="polite">
+                여기에 중국어 번역이 표시됩니다.
+              </div>
+            </div>
+          </div>
+          <p class="translator-status" id="translatorStatus">입력 대기 중</p>
+        </div>
+      </section>
+
       <section id="contact">
         <div class="shell contact reveal">
           <h2>새 브랜드, 새 웹사이트, 새 캠페인을 준비 중인가요?</h2>
@@ -821,6 +927,72 @@
           signupSubmit.disabled = false;
           signupSubmit.textContent = "가입하기";
         }
+      });
+
+      const koreanInput = document.querySelector("#koreanInput");
+      const chineseOutput = document.querySelector("#chineseOutput");
+      const translatorStatus = document.querySelector("#translatorStatus");
+      const fallbackWords = {
+        "안녕하세요": "你好",
+        "감사합니다": "谢谢",
+        "사랑합니다": "我爱你",
+        "중국어": "中文",
+        "번역": "翻译",
+        "서비스": "服务",
+        "테스트": "测试",
+        "디자인": "设计",
+        "브랜드": "品牌",
+        "웹사이트": "网站",
+        "문의": "咨询",
+        "회원가입": "注册",
+      };
+      let translateTimer;
+
+      const fallbackTranslate = (text) => {
+        let translated = text;
+        for (const [korean, chinese] of Object.entries(fallbackWords)) {
+          translated = translated.replaceAll(korean, chinese);
+        }
+        return translated === text
+          ? "번역 서버에 연결할 수 없습니다. 잠시 후 다시 입력해 주세요."
+          : translated;
+      };
+
+      const translateToChinese = async (text) => {
+        if (!text.trim()) {
+          chineseOutput.textContent = "여기에 중국어 번역이 표시됩니다.";
+          translatorStatus.textContent = "입력 대기 중";
+          return;
+        }
+
+        translatorStatus.textContent = "번역 중...";
+        try {
+          const url = new URL("https://translate.googleapis.com/translate_a/single");
+          url.searchParams.set("client", "gtx");
+          url.searchParams.set("sl", "ko");
+          url.searchParams.set("tl", "zh-CN");
+          url.searchParams.set("dt", "t");
+          url.searchParams.set("q", text);
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error("translation failed");
+          }
+
+          const data = await response.json();
+          chineseOutput.textContent = data[0].map((part) => part[0]).join("");
+          translatorStatus.textContent = "자동 번역 완료";
+        } catch (error) {
+          chineseOutput.textContent = fallbackTranslate(text);
+          translatorStatus.textContent = "기본 번역 모드로 표시 중";
+        }
+      };
+
+      koreanInput.addEventListener("input", () => {
+        window.clearTimeout(translateTimer);
+        translateTimer = window.setTimeout(() => {
+          translateToChinese(koreanInput.value);
+        }, 450);
       });
 
       const reveals = document.querySelectorAll(".reveal");
